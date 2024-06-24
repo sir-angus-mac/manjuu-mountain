@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="shortcut icon" type="image/x-icon" href="./character.png" /> 
+		<title>Manjuu Mountain</title> 
+	</head>
+	<body onkeydown="handle(event)" onkeyup="handle2(event)">
+		<div id="hi">3</div>
+		<div id="bye" style="z-index: 2;">...</div>
+		<div id="collect_num" style="z-index: 2;">0</div>
+		<canvas id="layer4th" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 6;"></canvas>
+		<canvas id="layer3rd" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 5;"></canvas>
+		<canvas id="canvasDragon" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 4;"></canvas>
+		<canvas id="myCanvas" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 3;"></canvas>
+		<canvas id="warnCanvas" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 2;"></canvas>
+		<canvas id="myBackground" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 1; "></canvas>
+		<canvas id="BG" width="1280" height="720" style="border:2px solid #000000; position: absolute; left: 0; top: 0; z-index: 0; background: #ADD8E6;"></canvas>
+			<img src="./background.png" id="background_image" style="display: none;">
+			<img src="./penanbou.png" id="penanbou" style="display: none;">
+			<img src="./waves.png" id="waves" style="display: none;"> 
+			<img src="./grass.png" id="grass" style="display: none;">
+			<img src="./rope.png" id="rope" style="display: none;">
+			<img src="./count.png" id="countbou" style="display: none;">
+			<img src="./jump.png" id="placebou" style="display: none;">
+			<img src="./dragon.png" id="dragon" style="display: none;">
+			<img src="./warn.png" id="warn" style="display: none;"> 
+			<img src="./hungryghost.png" id="hungryghost" style="display: none;"> 
+			<img src="./ghostcount.png" id="ghostC" style="display: none;"> 
+			<img src="./title.png" id="titlescreen" style="display: none;"> 
+			<img src="./keysinfo.png" id="keysinfo" style="display: none;"> 
+			<img src="./howtoplay.png" id="howtoplay" style="display: none;">  
+			<img src="./history.png" id="history" style="display: none;">
+			<img src="./character.png" id="character" style="display: none;">
+			<img src="./character_2.png" id="character_2" style="display: none;">
+			<img src="./character_3.png" id="character_3" style="display: none;"> 
+		<audio controls style="display: none;" id="select_sound"><source src="select_sound.mp3" type="audio/mpeg"></audio> 
+		<audio controls style="display: none;" id="jump_sound"><source src="jump_sound.mp3" type="audio/mpeg"></audio> 
+		<audio controls style="display: none;" id="jump_sound_2"><source src="jump_sound_2.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="grab_sound"><source src="grab_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="water_sound"><source src="water_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="countdown_sound"><source src="countdown_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="dragon_roar"><source src="dragon_roar.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="oops_sound"><source src="oops_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="eat_sound"><source src="eat_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="title_sound"><source src="title_sound.mp3" type="audio/mpeg"></audio> 
+		<audio controls style="display: none;" id="countdown_2_sound"><source src="countdown_2_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="alarm_sound"><source src="alarm_sound.mp3" type="audio/mpeg"></audio> 
+		<audio controls style="display: none;" id="ok_sound"><source src="ok_sound.mp3" type="audio/mpeg"></audio>  
+		<audio controls style="display: none;" id="not_ok_sound"><source src="not_ok_sound.mp3" type="audio/mpeg"></audio> 
+		<audio controls style="display: none;" id="place_sound"><source src="place_sound.mp3" type="audio/mpeg"></audio> 
+		<script> 
+			function clear() {
+				ctx.beginPath() 
+				ctx2.beginPath()
+				ctx3.beginPath()
+				ctx4.beginPath()
+				ctx5.beginPath()
+				ctx.clearRect(0, 0, 1280, 720) 
+				ctx2.clearRect(0, 0, 1280, 720) 
+				ctx3.clearRect(0, 0, 1280, 720) 
+				ctx4.clearRect(0, 0, 1280, 720) 
+				ctx5.clearRect(0, 0, 1280, 720)  
+			}
+			function getRandomInt(max) {
+				return Math.floor(Math.random() * max);
+			}
+			function getMousePos(canvas, event) {
+			var rect = canvas.getBoundingClientRect();
+			return {
+				x: event.clientX - rect.left,
+				y: event.clientY - rect.top,
+			};
+			} 
+			function gameOver() {
+				game_over = true 
+				document.getElementById("bye").innerHTML = "Game Over!"
+				for (var em2 of enemies_pos) {
+					em2.isKilled = true  
+				}
+				clearInterval(player.left_counter)
+				clearInterval(player.right_counter)
+				if (final_elev == 0) {
+					final_elev = elevation
+				}
+			}
+
+			// Function to check whether a point is inside a rectangle
+			var titlePage = false; 
+			var keysPage = false;  
+			var howToPlayPage = false;
+			var historyPage = false;
+			function buttonSpawn() {
+				clear() 
+				var opacity = 0.05
+				var c = setInterval(() => {
+					opacity += 0.05
+					ctx5.globalAlpha = opacity;
+					ctx5.drawImage(titlescreen, 80, 80, 1120, 560) 
+					ctx3.globalAlpha = opacity; 
+					ctx3.drawImage(waves, 0, 0, 1280, 720)
+					ctx5.fillStyle = "#de2848";    
+					ctx5.font = "bold 32px sans-serif"; 
+					ctx5.textAlign = "center";  
+					if (end) { 
+						if (welcome)  {
+							welcome = false
+							document.getElementById("title_sound").play();  
+						}
+						var rate = Math.floor(grab_rate)
+						ctx5.fillText("Elevation: " + final_elev.toString(), 640, 110);   
+						if (grab_count <= 0) {
+							ctx5.fillText("Total Buns Obtained: None!", 640, 150);   
+						} else {
+							ctx5.fillText("Total Buns Obtained: " + grab_count.toString() + " (" + rate.toString() + "%)", 640, 150); 
+						}
+						if (rate <= 20) {      
+							ctx5.fillText("Try to grab more buns!", 640, 190);   
+						} else if (elevation > 20000) {
+							ctx5.fillText("Unbelievable...", 640, 190);    
+						} else if (elevation > 10000) {
+							ctx5.fillText("Wow! Congrats!", 640, 190);   
+						}  else {
+							ctx5.fillText("You can do better! I believe in you :)", 640, 190);   
+						}    
+					}
+					if (opacity >= 1) { 
+						titlePage = true 
+						clearInterval(c)
+					}  
+					// ctx5.fillStyle = "red" 
+					// ctx5.fillRect(500, 550, 310,60) 
+				}, 50)
+			}
+			function keysInfo() {
+				clear()  
+				ctx3.drawImage(waves, 0, 0, 1280, 720)
+				var opacity = 0.05
+				var c = setInterval(() => {
+					opacity += 0.05
+					ctx5.globalAlpha = opacity;
+					ctx5.drawImage(keysinfo, 80, 80, 1120, 560)  
+					if (opacity >= 1) {
+						keysPage = true 
+						clearInterval(c)
+					}   
+				}, 50)
+			}
+			function howToPlayInfo() {
+				clear()  
+				ctx3.drawImage(waves, 0, 0, 1280, 720)
+				var opacity = 0.05
+				var c = setInterval(() => {
+					opacity += 0.05
+					ctx5.globalAlpha = opacity;
+					ctx5.drawImage(howtoplay, 80, 80, 1120, 560)  
+					if (opacity >= 1) {
+						howToPlayPage = true 
+						clearInterval(c)
+					}    
+				}, 50)
+			}
+			function historyInfo() {
+				clear()  
+				ctx3.drawImage(waves, 0, 0, 1280, 720)
+				var opacity = 0.05
+				var c = setInterval(() => {
+					opacity += 0.05
+					ctx5.globalAlpha = opacity;
+					ctx5.drawImage(history, 80, 80, 1120, 560)  
+					if (opacity >= 1) {
+						historyPage = true 
+						clearInterval(c)
+					}    
+				}, 50)
+			}
+			function isInsideStart(pos) { 
+				return pos.x > 330 && pos.x < 330 + 310 && pos.y < 490 + 60 && pos.y > 490 
+			}
+			function isInsideHowToPlay(pos) { 
+				return pos.x > 642 && pos.x < 642 + 313 && pos.y < 490 + 60 && pos.y > 490 
+			}
+			function back(pos) {
+				return pos.x > 120 && pos.x < 120 + 70 && pos.y < 538 + 70 && pos.y > 538
+			}
+			function proceed(pos) {
+				return pos.x > 1095 && pos.x < 1095 + 70 && pos.y < 538 + 70 && pos.y > 538
+			}
+			function moreinfo(pos) {
+				return pos.x > 500 && pos.x < 500 + 310 && pos.y < 550 + 60 && pos.y > 538 
+			}
+
+			var canvas = document.getElementById("layer4th");
+			canvas.addEventListener('click', function(evt) {
+				var mousePos = getMousePos(canvas, evt);
+
+				if (isInsideStart(mousePos) && titlePage) {
+					titlePage = false 
+					start()
+				} else if (isInsideHowToPlay(mousePos) && titlePage) {
+					titlePage = false 
+					keysInfo() 
+				} 
+				else if (back(mousePos)) {
+					if (keysPage) {
+						keysPage = false 
+						buttonSpawn() 
+					} else if (howToPlayPage) {
+						howToPlayPage = false 
+						historyPage = false  
+						keysInfo() 
+					}
+				}  else if (proceed(mousePos)) {
+					if (keysPage) {
+						keysPage = false 
+						howToPlayInfo()  
+					} else if ((historyPage || howToPlayPage)) {
+						howToPlayPage = false
+						historyPage = false  
+						buttonSpawn()    
+					} 
+				} else if (moreinfo(mousePos) && titlePage) {
+					titlePage = false  
+					historyInfo()
+				} else {
+					return
+				}
+				document.getElementById("select_sound").play(); 
+			}, false); 
+
+
+
+
+			var canvas = document.getElementById("BG");
+			const hours = (new Date()).getHours(); 
+			if (18 < hours || hours < 6) { 
+				canvas.style.background = "#1f2736"
+			}
+			var ctx0 = canvas.getContext("2d");
+			var canvas = document.getElementById("myCanvas");
+			var ctx = canvas.getContext("2d");
+			var canvasWarn = document.getElementById("warnCanvas");
+			var ctxWarn = canvasWarn.getContext("2d");
+			var canvas2 = document.getElementById("myBackground");
+			var ctx2 = canvas2.getContext("2d");
+			var canvas3 = document.getElementById("layer3rd");
+			var ctx3 = canvas3.getContext("2d");
+			var canvas4 = document.getElementById("canvasDragon");
+			var ctx4 = canvas3.getContext("2d");
+			var canvas5 = document.getElementById("layer4th");
+			var ctx5 = canvas5.getContext("2d"); 
+			const bg = document.getElementById("background_image");
+			const bou = document.getElementById("penanbou");
+			const waves = document.getElementById("waves");
+			const grass = document.getElementById("grass");
+			const dragonQing = document.getElementById("dragon"); 
+			const warn = document.getElementById("warn"); 
+			const ghost = document.getElementById("hungryghost"); 
+			const ghostC = document.getElementById("ghostC"); 
+			const titlescreen = document.getElementById("titlescreen"); 
+			const keysinfo = document.getElementById("keysinfo"); 
+			const howtoplay = document.getElementById("howtoplay"); 
+			const history = document.getElementById("history");  
+			var character = document.getElementById("character"); 
+			var character_2 = document.getElementById("character_2"); 
+			var character_3 = document.getElementById("character_3");  
+			class Entity {
+				constructor(x, y, left_counter, right_counter, left, right, initial, jumpTimer, jump, color, isMain, tick, want_how_many) {
+					this.x = x
+					this.y = y
+					this.left_counter = left_counter
+					this.right_counter = right_counter
+					this.left = left
+					this.right = right
+					this.initial = initial
+					this.jumpTimer = jumpTimer
+					this.jump = jump 
+					this.color = color
+					this.onGround = true
+					this.isMain = isMain
+					this.isKilled = false
+					this.tick = tick 
+					this.inAir = false
+					this.canPlace = false
+					this.seconds = 3
+					this.collected= 0
+					this.want_how_many = want_how_many
+					this.ghost_count = 0 
+					this.image = character 
+
+					ctx.fillStyle = color;
+					ctx.fillRect(x, y, character_hw, character_hw)
+				}
+			}
+
+			class Dragon {
+				constructor(horizontal_or_vertical) {
+					var x;
+					var y;
+					var width;
+					var length;
+					if (horizontal_or_vertical == "vertical") {
+						if (0 <= player.x && player.x < x_limit/4) {  
+							x = 40
+						} else if (x_limit/4 <= player.x && player.x < x_limit/2) {
+							x = 40+320
+						} else if (x_limit/2 <= player.x && player.x < x_limit/4*3) {
+							x = 1080-320 
+						} else {
+							x = 1080
+						}
+						y = player.y - 3840*2 
+						width = 160 
+						length = 3840 
+						setTimeout(() => {  
+							document.getElementById("alarm_sound").play();  
+							ctxWarn.drawImage(warn, x, 0, this.width, this.width);   
+							setTimeout(() => {ctxWarn.beginPath(); ctxWarn.clearRect(x, 0, this.width, this.width);},1500) 
+						}, 1500)
+					}
+					this.x = x
+					this.y = y
+					this.width = width
+					this.length = length
+					this.isKilled = false
+					this.roared = false
+				}
+			}
+
+			function dragon_vertical(dragon) { 
+				var dv = setInterval(() =>{
+					dragon.y += 10
+					for (var i = 1; i < blocks.length; i++) {
+						var b = blocks[i] 
+						if (dragon.x+dragon.width <= b[0] || b[0]+b[2] <= dragon.x ) {
+							continue
+						}
+						if (dragon.y+dragon.length  <= b[1] || b[1]+b[3] <= dragon.y ) { 
+							continue
+						} 
+						if (b[1] < player.y - 720) { 
+							continue
+						}
+
+						ctx.clearRect(b[0], b[1]+elevation, b[2], b[3])
+						blocks.splice(i, 1)    
+						bou_spawn -= 1   
+					} 
+					
+					var good_to_go = false
+					if (dragon.x+dragon.width <= player.x || player.x+character_hw <= dragon.x ) {
+						good_to_go = true
+					}
+					if (dragon.y+dragon.length  <= player.y || player.y+character_hw <= dragon.y ) { 
+						good_to_go = true
+					}
+					if (!good_to_go) {
+						gameOver()
+					}
+					if (!dragon.roared) {
+						if (dragon.y + 3840 > player.y - 1000) {
+							dragon.roared = true
+							document.getElementById("dragon_roar").play(); 
+						}
+					}
+
+					if (((game_over || dragon.y > sea_level) && sea_begin) || game_over) {
+						clearInterval(dv)  
+						dragon.isKilled = true 
+					}
+				}, 15)
+			}
+
+			function change(x_c, y_c, mode, entity) {
+				ctx0.beginPath();
+				ctx0.clearRect(0, 0, 1280, 720); 
+				ctx.beginPath();
+				if (!game_over) {
+					for (const b of blocks) {
+						ctx.clearRect(b[0], b[1]+elevation, b[2], b[3])
+					}
+				}
+				ctx3.beginPath()
+				if (dragons_pos.length > 0) {
+					ctx4.beginPath()
+					ctx4.clearRect(dragons_pos[0].x, dragons_pos[0].y+elevation-1000, dragons_pos[0].width, dragons_pos[0].length+1000) 
+				}
+				if (entity.isMain) { 
+					if (!game_over) {
+						ctx2.clearRect(entity.x+30, 0, 20, 720)
+						ctx.clearRect(entity.x, ground, character_hw, character_hw);
+						if (sea_begin) {
+							ctx4.beginPath()
+							ctx4.clearRect(0, 0, 1280, 720)  
+						}
+					} 
+					for (const em of enemies_pos) {
+							ctx.clearRect(em.x, em.y+elevation-character_hw, character_hw, character_hw+character_hw)
+					}
+					} else {
+						ctx.clearRect(entity.x, entity.y+elevation-character_hw, character_hw, character_hw+character_hw);
+				} 
+				if (dragons_pos.length > 0) {
+					ctx4.drawImage(dragonQing, dragons_pos[0].x, dragons_pos[0].y+elevation, dragons_pos[0].width, dragons_pos[0].length+300)  
+				}
+
+				var x_pre = entity.x + x_c 
+				var y_pre = entity.y + y_c 
+				var change_success = false 
+
+				//cases
+				if (x_pre > x_limit-character_hw) {
+					entity.x = 0
+				} else if (x_pre < 0) {
+					entity.x = x_limit-character_hw
+				} else if (y_pre > ground) {
+					entity.y = ground
+					if (entity.isMain) {
+						elevation = 0 
+					}
+					entity.onGround = true
+				} else {
+					var confirm_success = true
+					var x_pre_br = x_pre + character_hw
+					var y_pre_br = y_pre + character_hw
+					for (const b of blocks) {
+						if (x_pre_br <= b[0] || b[0]+b[2] <= x_pre ) {
+							continue
+						}
+						if (y_pre_br <= b[1] || b[1]+b[3] <= y_pre ) {
+							continue
+						}
+
+						//fix? maybe 
+						if (entity.x + character_hw < b[0]) { //from left
+							entity.x = b[0] - character_hw
+						} else if (b[0]+b[2] < entity.x) { //from right 
+							entity.x = b[0]+b[2]
+						}
+						if (entity.y + character_hw < b[1]) { //from top 
+							if (entity.isMain) {
+								elevation -= (b[1] - character_hw) - (entity.y)
+							}
+							entity.y = b[1] - character_hw
+							entity.onGround = true
+						} else if (b[1]+b[3] < entity.y) { //from bottom   
+							if (entity.isMain) {
+								elevation += entity.y - (b[1]+b[3])
+							}
+							entity.y = b[1]+b[3]
+						}
+
+						confirm_success = false
+						break
+					}
+					if (confirm_success) {
+						change_success = true
+					}
+
+					//Game Over or Collect?
+					if (entity.isMain) {
+						for (const em of enemies_pos) {
+							if (x_pre_br <= em.x || em.x+character_hw <= x_pre ) {
+								continue
+							}
+							if (y_pre_br <= em.y || em.y+character_hw <= y_pre ) {
+								continue
+							}
+
+							if (!em.isKilled) {
+								em.isKilled = true
+								entity.collected -= em.want_how_many
+								if (entity.collected < 0) {
+									gameOver()
+									document.getElementById("oops_sound").play();  
+								} else {
+									entity.ghost_count += 1
+									ghostCount(entity.ghost_count.toString())
+									document.getElementById("eat_sound").play();   
+								}
+								updateScore(entity)
+								break
+							}
+						}
+					}
+				}
+
+				if (change_success) {
+					entity.x += x_c
+					entity.y += y_c
+					if (entity.isMain) {
+						elevation -= y_c
+					}
+				} else if (mode == "jump") {
+					clearInterval(entity.jumpTimer)
+					entity.jumpTimer = null
+					entity.jump = false
+					entity.initial = 0
+				} 
+				if (mode == "drop") {
+					if (change_success) {
+						entity.inAir = true
+					} else {
+						entity.inAir = false 
+						entity.onGround = true
+					}
+				}
+				
+				if (!game_over) {
+					if (entity.isMain) {
+						ctx2.drawImage(rope, entity.x+30, 0, 20, 720)
+					}
+					for (const b of blocks) {
+						if (b[1] == ground+character_hw) {
+							ctx.drawImage(grass, b[0], b[1]+elevation, b[2], b[3])
+						} else {
+							ctx.drawImage(bou, b[0], b[1]+elevation, b[2], b[3])	
+						}
+					}
+				}
+				if (entity.isMain) { 
+					if (sea_begin) {  
+						if (entity.y-680 < sea_level) {
+							ctx4.drawImage(waves, 0, sea_level+elevation+character_hw, 1280, 720)
+						} else { 
+							ctx4.drawImage(waves, 0, 0, 1280, 720) 
+						}
+					}
+					if (game_over) { 
+						ctx.drawImage(character_2, entity.x, ground, character_hw, character_hw);
+					} else if (entity.initial < 0) { 
+						ctx.drawImage(character_3, entity.x, ground, character_hw, character_hw);
+					} else {
+						ctx.drawImage(character, entity.x, ground, character_hw, character_hw);
+					}
+					for (const em of enemies_pos) {
+						if (!em.isKilled) {
+							ctx.fillStyle = "#ffffff";  
+							ctx.drawImage(ghost, em.x, em.y+elevation, character_hw, character_hw)
+							ctx.font = "30px sans-serif";
+							ctx.fillText("-"+ em.want_how_many.toString(), em.x+character_hw/2.5, em.y+elevation-character_hw/2);
+						}
+					} 
+				} else {   
+					if (!entity.isKilled) {
+						ctx.drawImage(ghost, entity.x, entity.y+elevation, character_hw, character_hw);
+						ctx.font = "30px sans-serif";
+						ctx.fillText("-"+entity.want_how_many, entity.x+character_hw/2.5, entity.y+elevation-character_hw/2);
+					}
+				}
+
+				ctx0.drawImage(bg, 0, elevation % 720, 1280, 720); 
+				ctx0.drawImage(bg, 0, elevation % 720-720, 1280, 720); 
+			}
+
+			function jumpStart(entity) { 
+				if (entity.onGround && !entity.inAir) {
+					if (entity.isMain) {
+						var j_s = getRandomInt(5)
+						if (j_s == 1) {
+							document.getElementById("jump_sound").play();   
+						} else if (j_s == 2) {
+							document.getElementById("jump_sound_2").play();  
+						}
+					} 
+					entity.onGround = false
+					entity.initial = -28
+					entity.jump = true
+					entity.jumpTimer = setInterval(function() {
+						change(0, entity.initial, "jump", entity)
+						entity.initial += 1
+					}, entity.tick*1.5);
+				}
+			}
+
+			function leftStart(entity) {
+				if (entity.left == false) {
+						entity.left = true;
+						entity.left_counter = setInterval(function() {
+							change(-step, 0, "left", entity)
+					}, entity.tick*1.5);
+				}
+			}
+
+			function rightStart(entity) {
+				if (entity.right == false) {
+						entity.right = true;
+						entity.right_counter = setInterval(function() {
+							change(step, 0, "right", entity)
+					}, entity.tick*1.5);
+				}
+			}
+
+			function gravity(entity) { // + place or not 
+				var g = setInterval(function() {
+					
+					if (!entity.jump) {
+							if (entity.initial < 19) {
+								entity.initial += 1
+							}
+							change(0, entity.initial, "drop", entity)
+					} 
+					if (entity.isMain) {
+						if ((sea_level < player.y && sea_begin)){
+							gameOver() 
+							if (!dump) {
+								document.getElementById("water_sound").play();  
+								dump = true; 
+							}
+						} 
+						//sea level rises (end?)
+						if (sea_begin) {
+							if (game_over && sea_level > player.y+character_hw) {
+								sea_level = player.y+character_hw
+							}
+							if (sea_level+elevation+character_hw > 0) {
+								sea_level -=1
+							} else if (!end) {  
+								ctx3.drawImage(waves, 0, 0, x_limit, 720)
+								end = true 
+								console.log("end")
+								grab_rate = bou_spawn / grab_count 
+								console.log(grab_rate)
+							}
+ 
+							if (sea_level - 1500 > entity.y) {
+								sea_level = entity.y+1500 
+							}
+						}
+					}
+					if (entity.isKilled || end ) {
+						clearInterval(g)
+						ctx.beginPath();
+						ctx.clearRect(entity.x, entity.y+elevation, character_hw, character_hw);
+					}
+				}, entity.tick*1.5);
+			}
+
+			function follow(entity) { //warning: for entities only!
+				var f = setInterval(function() {
+					
+					if (player.x < entity.x) {
+						clearInterval(entity.right_counter)
+						entity.right = false
+						leftStart(entity)
+					} else {
+						clearInterval(entity.left_counter)
+						entity.left = false
+						rightStart(entity)
+					}
+					if (player.y <= entity.y) {
+						jumpStart(entity) 
+					} 
+					if (entity.isKilled) {
+						ctx.beginPath();
+						ctx.clearRect(entity.x, entity.y+elevation, character_hw, character_hw);
+						clearInterval(entity.left_counter)
+						clearInterval(entity.right_counter)
+						clearInterval(entity.jumpTimer)
+						clearInterval(f)
+					}
+				}, entity.tick*1.5);
+			}
+
+			function updateScore(entity) {
+				ctx5.beginPath()
+				ctx5.drawImage(countbou, 0, 80, character_hw, character_hw)
+				ctx5.fillStyle = "#a12f43";
+				ctx5.font = "30px sans-serif";
+				ctx5.textAlign = "center"; 
+				ctx5.fillText(entity.collected.toString(), 40, 125);
+			}
+
+			function place(entity) {
+				if (entity.canPlace) {
+					var y_br = entity.y + character_hw 
+					var closest_y = y_br + (elevation % character_hw)
+					var closest_x = entity.x - (entity.x % character_hw)
+					if (closest_x == 0) {
+						if (entity.x == 0) {
+							countdown("✘") 
+							return
+						} else {
+							closest_x = character_hw
+						}
+					} else if (closest_x == x_limit - character_hw) {
+						if (entity.x == x_limit - character_hw) {
+							countdown("✘") 
+							return
+						} else {
+							closest_x = x_limit - character_hw*2 
+						}	
+					} 
+					var cost = 5 
+					if (entity.collected - cost < 0) { 
+						countdown("✘") 
+						entity.seconds = 1  
+					} else {
+						entity.collected -= cost
+						entity.canPlace = false
+						entity.seconds = 3
+						countdown("▣") 
+						blocks.push([closest_x, closest_y, character_hw, character_hw])
+						document.getElementById("place_sound").play();   
+					} 
+					updateScore(entity)
+				} 
+			}
+
+			function collect(entity, mode) {
+				var pos_x;
+				var pos_y;
+				if (mode == "up") {
+					pos_x = entity.x
+					pos_y = entity.y - character_hw
+				} else if (mode == "down") {
+					pos_x = entity.x
+					pos_y = entity.y + character_hw
+				} else if (mode == "left") {
+					pos_x = entity.x - character_hw
+					pos_y = entity.y
+				} else if (mode == "right") {
+					pos_x = entity.x + character_hw
+					pos_y = entity.y
+				}
+				var x_br = pos_x + character_hw
+				var y_br = pos_y + character_hw
+				for (var i = 1; i < blocks.length; i++) {
+					var b = blocks[i] 
+					if (x_br <= b[0] || b[0]+b[2] <= pos_x ) {
+						continue
+					}
+					if (y_br  <= b[1] || b[1]+b[3] <= pos_y ) {
+						continue
+					}
+					
+					ctx.beginPath()
+					ctx.clearRect(b[0], b[1]+elevation, b[2], b[3])
+					blocks.splice(i, 1)  
+					if (mode == "up") {
+						entity.initial = 1  
+					}
+					entity.collected += 1
+					updateScore(entity)
+					grab_count += 1 
+					document.getElementById("grab_sound").play();    
+					break
+				}
+			}
+			var prev_sign = ""
+			function countdown(s) {
+				if (s != prev_sign) {
+					prev_sign = s  
+					if (s == "✓") {
+						document.getElementById("ok_sound").play();  
+					} else if (s == "▣") {
+
+					} else if (s == "✘") {
+						document.getElementById("not_ok_sound").play(); 
+					} else {
+						document.getElementById("countdown_2_sound").play(); 
+					}
+				}
+				ctx5.beginPath() 
+				ctx5.drawImage(placebou, 0, 0, character_hw, character_hw)  
+				ctx5.fillStyle = "#2500a1"; 
+				ctx5.font = "30px sans-serif";
+				ctx5.textAlign = "center";
+				ctx5.fillText(s, 40, 45); 
+			}
+			function ghostCount(s) {
+				ctx5.beginPath() 
+				ctx5.drawImage(ghostC, 0, 160, character_hw, character_hw)  
+				ctx5.fillStyle = "#fc284f"; 
+				ctx5.font = "30px sans-serif";
+				ctx5.textAlign = "center";
+				ctx5.fillText(s, 40, 210); 
+			}
+
+			function handle2(e) {
+				if (e.keyCode == 37) {
+					clearInterval(player.left_counter)
+					player.left = false
+				}
+				if (e.keyCode == 39) {
+					clearInterval(player.right_counter)
+					player.right = false
+				}
+			}
+
+			function handle(e){
+				if (game_over == false) {
+					if(e.keyCode === 38 && player.jumpTimer == null){
+						//jump 
+						e.preventDefault();
+						jumpStart(player)
+					}
+					if(e.keyCode === 37){
+						e.preventDefault();
+						leftStart(player)
+					}
+					if(e.keyCode === 39){
+						e.preventDefault();
+						rightStart(player)
+					}
+					if(e.keyCode === 69){
+						e.preventDefault();
+						place(player)
+					}
+					if(e.keyCode === 87){
+						e.preventDefault();
+						collect(player, "up")
+					}
+					if(e.keyCode === 65){
+						e.preventDefault();
+						collect(player, "left")
+					}
+					if(e.keyCode === 68){
+						e.preventDefault();
+						collect(player, "right")
+					}
+					if(e.keyCode === 83){
+						e.preventDefault();
+						collect(player, "down")
+					}	
+				} 
+			}
+			var generated_levels;
+			var elevation;
+			var x_limit;
+			var character_hw;
+			var ground;
+			var step;
+			var blocks;
+			var sea_level;
+			var enemies_pos;
+			var prev_elev;
+			var sea_begin;
+			var game_over;
+			var end;
+			var player;
+
+			var t1;
+			var t2;
+			var dragons_pos;
+			var grab_count;
+			var bou_spawn;
+			var grab_rate; //your score!
+			var final_elev;
+			var dump;
+			var welcome = false;
+		
+			function startGame() {
+				dump = false
+				welcome = true 
+				grab_count = 0
+			    bou_spawn = 0
+				grab_rate = 0
+				generated_levels = 0
+				elevation = 0;
+				x_limit = 1280;
+				character_hw = 80;
+				ground = 720-character_hw*2;
+				step= 10;
+				blocks = [
+					[0, ground+character_hw, x_limit, character_hw],
+				] 
+				sea_level = 0
+				enemies_pos = []
+				dragons_pos = []
+				prev_elev = elevation
+				sea_begin = false
+				game_over = false
+				player = new Entity(0, ground, null, null, false, false, 0, null, false, "green", true, 8, -1) 
+				final_elev = 0 
+
+				t1 = setInterval(function() {
+					
+					if (elevation-280 > prev_elev && !game_over) {
+						generated_levels += 1
+						for (let i = 1; i <= 14; i++) {
+							var addRemove = getRandomInt(2)   
+							if (addRemove == 1) { 
+								blocks.push([i*character_hw, ground+character_hw-generated_levels*320, character_hw,character_hw])
+								bou_spawn += 1
+							}
+							var enemyAppear = getRandomInt(9)
+							if (sea_begin  && enemyAppear == 4 && addRemove == 1 && enemies_pos.length < getRandomInt(5)+1) {   
+								enemies_pos.push(new Entity(i*character_hw, ground-generated_levels*320, null, null, false, false, 0, null, false, "red", false, getRandomInt(40)+20, getRandomInt(player.collected*1.5)+1)) 
+								gravity(enemies_pos[enemies_pos.length-1])
+								follow(enemies_pos[enemies_pos.length-1]) 
+							}
+						}
+						
+						//spawn dragons 
+						if (sea_begin && dragons_pos.length == 0) { 
+							dragons_pos.push(new Dragon("vertical"))
+							dragon_vertical(dragons_pos[0]) 
+						} else if (dragons_pos.length > 0) {
+							if (dragons_pos[0].isKilled) {
+								dragons_pos = []
+							}
+						} 
+
+						for (let i = 1; i < blocks.length; i++) {
+							var y_lvl = blocks[i][1]
+							if (y_lvl > player.y+240*2) { 
+								if (y_lvl > sea_level) {
+									sea_level = y_lvl
+								} 
+								if (sea_begin) {
+									blocks.splice(i, 1)
+								}
+							}
+						}
+						for (let j = 0; j < enemies_pos.length; j++) {
+							var em = enemies_pos[j]
+							if (sea_level < em.y) {
+								em.isKilled = true
+								enemies_pos.splice(j, 1)
+								break
+							}
+						}
+						if (elevation > 1000) { 
+							sea_begin = true 
+						}
+					}	
+
+					if (end) {
+						clearInterval(t1)
+					}
+				}, 500); 
+
+				t2 = setInterval(function() {
+					if (player.seconds == 0 && !end) {
+							if (player.collected > 4) {
+								countdown("✓")
+							} else {
+								countdown("✘")
+							}
+							player.canPlace = true
+						} else if (!end) {
+							player.seconds -= 1
+							countdown(player.seconds.toString())
+						}
+						if (end) {
+							clearInterval(t2)
+							buttonSpawn()
+						} 
+				}, 1000);
+				//first 4 layers
+				for (var layer = 1; layer <= 4; layer++) {
+					for (let i = 1; i <= 14; i++) {
+						var addRemove = getRandomInt(2) 
+						if (addRemove == 1) {
+							blocks.push([i*character_hw, ground+character_hw-layer*320, character_hw,character_hw]) 
+						}
+					} 
+					generated_levels += 1
+				}
+				gravity(player)
+			}
+
+			function begincount(s) {
+				if (s != "Loading...") {
+					document.getElementById("countdown_sound").play();   
+				}
+				ctx.fillStyle = "#de2848";   
+				ctx.font = "100px sans-serif"; 
+				ctx.textAlign = "center";
+				ctx.fillText(s, 640, 360);  
+			} 
+
+			function start() {  
+				clearInterval(t2)
+				end = false
+				clear()
+				begincount("3")
+				setTimeout(() => {
+					clear()
+					begincount("2")
+					setTimeout(() => {
+						clear() 
+						begincount("1")
+						setTimeout(() => {
+							clear()
+							startGame()
+						},1000)
+					},1000)
+				},1000) 
+			}
+
+			//AUTO-RESTART 
+			// setInterval(() => {
+			// 	if (end) {
+			// 		start()
+			// 	}
+			// }, 1000)
+			begincount("Loading...") 
+			setTimeout(() => { 
+				buttonSpawn()
+			}, 3000)  
+			
+		</script>
+	</body>
+
+</html>
