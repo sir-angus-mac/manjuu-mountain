@@ -860,7 +860,7 @@
 				x_limit = 1280;
 				character_hw = 80;
 				ground = 720-character_hw*2;
-				step= 10;
+				step= 5; 
 				blocks = [
 					[0, ground+character_hw, x_limit, character_hw],
 				] 
@@ -884,8 +884,8 @@
 								bou_spawn += 1
 							}
 							var enemyAppear = getRandomInt(9)
-							if (sea_begin  && enemyAppear == 4 && addRemove == 1 && enemies_pos.length < getRandomInt(5)+1) {   
-								enemies_pos.push(new Entity(i*character_hw, ground-generated_levels*320, null, null, false, false, 0, null, false, "red", false, getRandomInt(40)+20, getRandomInt(player.collected*1.5)+1)) 
+							if (sea_begin  && enemyAppear == 4 && addRemove == 1 && enemies_pos.length < getRandomInt(5)+1) {    
+								enemies_pos.push(new Entity(i*character_hw, ground-generated_levels*320, null, null, false, false, 0, null, false, "red", false, getRandomInt(20)+10, getRandomInt(player.collected*1.5)+1)) 
 								gravity(enemies_pos[enemies_pos.length-1])
 								follow(enemies_pos[enemies_pos.length-1]) 
 							}
